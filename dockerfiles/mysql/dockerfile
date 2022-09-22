@@ -1,0 +1,10 @@
+FROM mysql:8.0
+
+RUN groupadd -g 1000 noroot
+RUN useradd -u 1000 -ms /bin/bash -g noroot noroot
+
+RUN chown -R noroot:noroot /var/lib/mysql && chmod -R g+wrx /var/lib/mysql
+
+USER noroot
+
+EXPOSE 3306

@@ -48,26 +48,10 @@ services:
     networks:
       - laravel
 
-  redis:
-    image: redis:alpine
-    container_name: redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    networks:
-      - laravel
-    volumes:
-      - ./dockerfiles/redis:/data
-
-
-
-
-
-
-
-
   mysql:
-    image: mysql:8.0
+    build:
+      context: .
+      dockerfile: dockerfiles/mysql/dockerfile
     container_name: mysql
     restart: unless-stopped
     tty: true
@@ -81,41 +65,15 @@ services:
     networks:
       - laravel
     volumes:
-      - ./dockerfiles/mysql:/var/lib/mysql
-#
-#  composer:
-#    build:
-#      context: ./dockerfiles
-#      dockerfile: composer.dockerfile
-#      args:
-#        - UID=${UID:-1000}
-#        - GID=${GID:-1000}
-#    container_name: composer
+      - ./dockerfiles/mysql/dump:/var/lib/mysql
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - laravel
 #    volumes:
-#      - ./:/var/www/html
-#    working_dir: /var/www/html
-#    depends_on:
-#      - php
-#    user: laravel
-#    entrypoint: [ 'composer', '--ignore-platform-reqs' ]
-#    networks:
-#      - laravel
-#
-#  artisan:
-#    build:
-#      context: ./dockerfiles
-#      dockerfile: php.dockerfile
-#      args:
-#        - UID=${UID:-1000}
-#        - GID=${GID:-1000}
-#    container_name: artisan
-#    volumes:
-#      - ./:/var/www/html:delegated
-#    depends_on:
-#      - mysql
-#    working_dir: /var/www/html
-#    entrypoint: [ 'php', '/var/www/html/artisan' ]
-#    networks:
-#      - laravel
-#    environment:
-#      DB_HOST: mysql
+#      - ./dockerfiles/redis:/data

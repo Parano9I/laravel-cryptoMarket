@@ -1,2 +1,2 @@
-dockerfiles/mysql/**
+dockerfiles/mysql/dump/**
 dockerfiles/redis/**
