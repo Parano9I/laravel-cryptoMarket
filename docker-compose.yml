@@ -1,0 +1,121 @@
+version: '3.3'
+
+networks:
+  laravel:
+    driver: bridge
+
+volumes:
+  mysql:
+    driver: local
+  redis:
+    driver: local
+
+services:
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    container_name: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src/:/var/www/
+      - ./dockerfiles/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - laravel
+
+  app:
+    build:
+      context: ./dockerfiles
+      dockerfile: app/dockerfile
+    container_name: app
+    volumes:
+      - ./src/:/var/www/
+    networks:
+      - laravel
+
+  node:
+    build:
+      context: .
+      dockerfile: dockerfiles/node/dockerfile
+    container_name: node
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+      - "5173:5173"
+    volumes:
+      - ./src/:/var/www/
+      - /var/www/node_modules
+    networks:
+      - laravel
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    networks:
+      - laravel
+    volumes:
+      - ./dockerfiles/redis:/data
+
+
+
+
+
+
+
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    tty: true
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_ROOT_HOST: '%'
+      MYSQL_DATABASE: 'laravel'
+      MYSQL_PASSWORD: 'root'
+    networks:
+      - laravel
+    volumes:
+      - ./dockerfiles/mysql:/var/lib/mysql
+#
+#  composer:
+#    build:
+#      context: ./dockerfiles
+#      dockerfile: composer.dockerfile
+#      args:
+#        - UID=${UID:-1000}
+#        - GID=${GID:-1000}
+#    container_name: composer
+#    volumes:
+#      - ./:/var/www/html
+#    working_dir: /var/www/html
+#    depends_on:
+#      - php
+#    user: laravel
+#    entrypoint: [ 'composer', '--ignore-platform-reqs' ]
+#    networks:
+#      - laravel
+#
+#  artisan:
+#    build:
+#      context: ./dockerfiles
+#      dockerfile: php.dockerfile
+#      args:
+#        - UID=${UID:-1000}
+#        - GID=${GID:-1000}
+#    container_name: artisan
+#    volumes:
+#      - ./:/var/www/html:delegated
+#    depends_on:
+#      - mysql
+#    working_dir: /var/www/html
+#    entrypoint: [ 'php', '/var/www/html/artisan' ]
+#    networks:
+#      - laravel
+#    environment:
+#      DB_HOST: mysql
