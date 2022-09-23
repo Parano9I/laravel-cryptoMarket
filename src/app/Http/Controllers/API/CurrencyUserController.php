@@ -24,9 +24,9 @@ class CurrencyUserController extends Controller
         return CurrenciesResource::collection($currencyHistories);
     }
 
-    public function store($userId, Request $request, StoreAction $action)
+    public function store(Request $request, StoreAction $action)
     {
-        $user = User::find($userId);
+        $user = auth()->user();
         $trackedCurrencies = $request->currencies;
 
         if (empty($trackedCurrencies)) {

@@ -10,17 +10,26 @@ Route::controller(CurrencyController::class)
     ->middleware([])
     ->prefix('/currencies')
     ->group(function () {
+
         Route::get('/', 'index')->name('currency.index');
+        Route::post('/', 'store')->name('currency.store');
+
+
     });
 
 Route::controller(CurrencyUserController::class)
-    ->middleware([])
-    ->prefix('/currencies/user/{userId}')
+    ->middleware(['auth:sanctum'])
+    ->prefix('/currencies/user')
     ->group(function (){
-        Route::post('/','store');
+
+        Route::get('/', 'index')->name('tracked.currency.index');
+        Route::post('/','store')->name('tracked.currency.store');
+        Route::get('/currency/{currency}', 'show')->name('tracked.currency.show');
+
     });
 
 //Route::get('/currencies/{currency}/user/{userId}', [CurrencyUserController::class, 'show'])
 //    ->name('currencies.show');
 //Route::get('/currencies/user/{userId}', [CurrencyUserController::class, 'index'])
 //    ->name('currencies.index');
+

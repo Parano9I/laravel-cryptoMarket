@@ -1,11 +1,10 @@
 import {createRouter, createWebHistory} from 'vue-router';
 
-import authGuard from './guards/auth.js';
-
 import Home from '../pages/Home.vue';
 import Login from '../pages/Auth/Login.vue';
 import Register from '../pages/Auth/Register.vue';
 import Preferences from '../pages/Preferences.vue';
+import Logout from "../pages/Auth/Logout.vue";
 
 
 const routes = [
@@ -23,6 +22,14 @@ const routes = [
         component: Login,
         meta: {
             authRequired: false,
+        }
+    },
+    {
+        path: '/logout',
+        name: 'logout',
+        component: Logout,
+        meta: {
+            authRequired: true,
         }
     },
     {
@@ -49,23 +56,23 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    const isAuth = localStorage.getItem('token') || false;
-    const userJSON = localStorage.getItem('user') || '';
-    const isFirstLogin = userJSON ? JSON.parse(userJSON).first_login : false;
+    // const isAuth = localStorage.getItem('token') || false;
+    // const userJSON = localStorage.getItem('user') || '';
+    // const isFirstLogin = userJSON ? JSON.parse(userJSON).first_login : false;
 
-    if (isAuth) {
-        if (to.name !== 'preferences') {
-            if (isFirstLogin) next('preferences');
-            if (!isFirstLogin) next(from.name);
-        }
-        if (['login', 'register'].includes(to.name)) {
-            next(from.name);
-        }
-    } else {
-        if (to.meta.authRequired) {
-            next('login');
-        }
-    }
+    // if (isAuth) {
+    //     if (to.name !== 'preferences') {
+    //         if (isFirstLogin) next('preferences');
+    //         if (!isFirstLogin) next(from.name);
+    //     }
+    //     if (['login', 'register'].includes(to.name)) {
+    //         next(from.name);
+    //     }
+    // } else {
+    //     if (to.meta.authRequired) {
+    //         next('login');
+    //     }
+    // }
     next();
 })
 

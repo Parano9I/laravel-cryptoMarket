@@ -32,7 +32,6 @@
 import CustomInput from '../../components/UI/Input.vue';
 import CustomCheckbox from '../../components/UI/Checkbox.vue';
 
-// import api from '../../axios/index.js';
 import {login} from "../../axios/auth";
 
 export default {
@@ -55,26 +54,34 @@ export default {
                 this.formData.email,
                 this.formData.password
             ).then((res) => {
-                localStorage.setItem('user', JSON.stringify(res.data.user));
-                localStorage.setItem('token', JSON.stringify(res.data.authorization));
+                    const user = res.data.user;
 
-                if (localStorage.getItem('token')) {
-                    this.$router.push({name: 'home'});
-                }
-            }).catch((errs) => {
-                const res = errs.response;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    localStorage.setItem('token', JSON.stringify(res.data.authorization));
 
-                switch (res.status) {
-                    case 422:
-                        this.errors = res.data.errors;
-                        break;
-                    case 401 :
-                        this.errors = {
-                            'unauthorized': true
-                        };
-                        break;
+                    if (localStorage.getItem('token')) {
+                        if (user.first_login) {
+                            this.$router.push({name: 'preferences'});
+                        } else {
+                            this.$router.push({name: 'home'});
+                        }
+                    }
+                },
+                (errs) => {
+                    const res = errs.response;
+
+                    switch (res.status) {
+                        case 422:
+                            this.errors = res.data.errors;
+                            break;
+                        case 401 :
+                            this.errors = {
+                                'unauthorized': true
+                            };
+                            break;
+                    }
                 }
-            })
+            )
         }
     }
 }

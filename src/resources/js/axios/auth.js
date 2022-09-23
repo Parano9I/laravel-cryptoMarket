@@ -1,4 +1,5 @@
 import httpClient from './index.js';
+import {authHeader} from "./headers";
 
 const endPoint = '/auth';
 
@@ -19,20 +20,26 @@ const register = (data) => {
     )
 };
 
-const refresh = () => {
-    const token = JSON.parse(localStorage.setItem('token'));
-
-}
-
 const logout = () => {
     return httpClient.get(
         endPoint + '/logout',
         {
             headers: {
-                'Bearer': JSON.parse(localStorage.getItem('token')).token,
-            }
+                ...authHeader
+            },
         }
     )
+};
+
+const checkValidToken = () => {
+    return httpClient.get(
+        endPoint + '/check',
+        {
+            headers: {
+                authHeader
+            }
+        }
+    );
 };
 
 
@@ -40,5 +47,5 @@ export {
     login,
     register,
     logout,
-    refresh
+    checkValidToken,
 };

@@ -35,8 +35,7 @@
 <script>
 import CryptoCard from "../components/CryptoCard.vue";
 
-import {getLatest} from "../axios/currency";
-import {postTrackedCurrencies} from "../axios/currency";
+import {getLatest, postTrackedCurrencies} from "../axios/currency";
 
 export default {
     components: {
@@ -64,12 +63,12 @@ export default {
         handleSubmit() {
             const user = JSON.parse(localStorage.getItem('user'));
 
-            postTrackedCurrencies(this.selected, user.id)
+            postTrackedCurrencies(this.selected)
                 .then((res) => {
                         if (res.status === 200) {
                             const newFirstLoginStatus = res.data.user.status
 
-                            localStorage.clear('user');
+                            localStorage.removeItem('user');
                             localStorage.setItem(
                                 'user',
                                 JSON.stringify({

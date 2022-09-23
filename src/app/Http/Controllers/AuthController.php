@@ -11,13 +11,25 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    function login(AuthLoginRequest $request)
+    public function login(AuthLoginRequest $request)
     {
         $validated = $request->validated();
 
-        $token = Auth::attempt($validated);
+        if (Auth::attempt($validated)) {
+            $user = Auth::user();
+            $token = $user
+                ->createToken($request->email)
+                ->plainTextToken;
 
-        if (!$token) {
+            return response()->json([
+                'status' => 'success',
+                'user' => $user,
+                'authorization' => [
+                    'token' => $token,
+                    'type' => 'Bearer',
+                ]
+            ]);
+        } else {
             return response()->json(
                 [
                     'status' => 'error',
@@ -25,17 +37,6 @@ class AuthController extends Controller
                 ], 401
             );
         }
-
-        $user = Auth::user();
-
-        return response()->json([
-            'status' => 'success',
-            'user' => $user,
-            'authorization' => [
-                'token' => $token,
-                'type' => 'bearer',
-            ]
-        ]);
     }
 
     public function registration(AuthRegistrationRequest $request)
@@ -49,7 +50,9 @@ class AuthController extends Controller
             'password' => Hash::make($request->password)
         ])->first();
 
-        $token = Auth::login($user);
+        $token = $user
+            ->createToken($request->email)
+            ->plainTextToken;
 
         return response()->json([
             'status' => 'success',
@@ -57,30 +60,48 @@ class AuthController extends Controller
             'user' => $user,
             'authorization' => [
                 'token' => $token,
-                'type' => 'bearer',
+                'type' => 'Bearer',
             ]
         ]);
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        Auth::logout();
+        auth()->user()->tokens()->delete();
+        Auth::guard('web')->logout();
+        
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully logged out',
         ]);
     }
 
-    public function refresh()
+    public function check()
     {
         return response()->json([
             'status' => 'success',
-            'user' => Auth::user(),
-            'authorization' => [
-                'token' => Auth::refresh(),
-                'type' => 'bearer'
-            ]
+            'message' => 'Token is valid',
         ]);
     }
+
+//    public function refresh()
+//    {
+//        $user = auth()->user();
+//
+//        $user->tokens()->delete();
+//        $token = $user
+//            ->createToken($user->email)
+//            ->plainTextToken;
+//
+//
+//        return response()->json([
+//            'status' => 'success',
+//            'user' => $user,
+//            'authorization' => [
+//                'token' => $token,
+//                'type' => 'Bearer'
+//            ]
+//        ]);
+//    }
 
 }
