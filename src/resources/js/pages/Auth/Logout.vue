@@ -10,6 +10,9 @@ export default {
         logout().then((res) => {
             if (res.status === 200) {
                 localStorage.clear();
+                this.$router.push({name: 'login'});
+            } else {
+                this.$router.back();
             }
         });
     },

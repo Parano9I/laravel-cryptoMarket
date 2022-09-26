@@ -27,9 +27,3 @@ Route::controller(CurrencyUserController::class)
         Route::get('/currency/{currency}', 'show')->name('tracked.currency.show');
 
     });
-
-//Route::get('/currencies/{currency}/user/{userId}', [CurrencyUserController::class, 'show'])
-//    ->name('currencies.show');
-//Route::get('/currencies/user/{userId}', [CurrencyUserController::class, 'index'])
-//    ->name('currencies.index');
-

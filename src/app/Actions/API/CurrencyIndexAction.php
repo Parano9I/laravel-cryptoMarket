@@ -6,32 +6,55 @@ use App\Models\CurrencyHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use function MongoDB\BSON\toJSON;
 
 class CurrencyIndexAction
 {
-    public function handle(string $userId, Request $request)
+    public function handle($user, Request $request)
     {
-        $date = new Carbon($request['date']);
-        $dfrom = new Carbon($request['dfrom']);
-        $dto = new Carbon($request['dto']);
+        $params = [
+            'date' => new Carbon($request['date']),
+            'dfrom' => new Carbon($request['dfrom']),
+            'dto' => new Carbon($request['dto']),
+            'findCurrencies' => $request['cs']
+                ? explode(',', $request['cs'])
+                : [],
+        ];
 
-        $user = User::findOrFail($userId);
-        $followCurrenciesId = $user->currencies()->pluck('id', 'name');
-        $data = CurrencyHistory::whereIn('currency_id', $followCurrenciesId);
+        $user = User::findOrFail($user->id);
 
-        if (empty($date)) {
-            if (!empty($dfrom) && !empty($dto)) {
-                $data = $data->whereBetween('created_at', [$dfrom->startOfDay(), $dto->endOfDay()]);
-            } else {
-                $data = $data->whereDate('created_at', Carbon::today()->startOfDay());
-            }
-        } else {
-            $data = $data->whereDate('created_at', $date);
-        }
+        $trackedCurrenciesId = $user
+            ->currencies()
+            ->when($params, function ($query) use ($params) {
+                if (!empty($params['findCurrencies'])) {
+                    return $query->whereIn('name', $params['findCurrencies']);
+                } else {
+                    return $query;
+                }
+            })
+            ->pluck('id', 'name');
 
-        return $data->with('Currency')
+        $data = CurrencyHistory::whereIn('currency_id', $trackedCurrenciesId)
+            ->when($params, function ($query) use ($params) {
+                if (empty($params['date'])) {
+                    if (!empty($params['dfrom']) && !empty($params['dto'])) {
+                        return $query->whereBetween(
+                            'created_at',
+                            [$params['dfrom']->startOfDay(), $params['from']->endOfDay()]
+                        );
+                    } else {
+                        return $query->whereDate('created_at', Carbon::today()->startOfDay());
+                    }
+                } else {
+                    return $query->whereDate('created_at', $params['date']);
+                }
+            })
+            ->with('Currency')
             ->get()
             ->groupBy('currency_id');
+
+
+        return $data->values();
     }
 
 }

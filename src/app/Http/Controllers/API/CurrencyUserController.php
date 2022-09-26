@@ -7,7 +7,7 @@ use App\Actions\API\CurrencyShowAction;
 use App\Actions\CurrencyUser\StoreAction;
 use App\Actions\PreferencesStoreAction;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\CurrenciesResource;
+use App\Http\Resources\Currency\CurrenciesResource;
 use App\Http\Resources\CurrencyResource;
 use App\Models\Currency;
 use App\Models\CurrencyHistory;
@@ -17,9 +17,14 @@ use Illuminate\Support\Carbon;
 
 class CurrencyUserController extends Controller
 {
-    public function index(Request $request, $userId, CurrencyIndexAction $action)
+    public function index(Request $request, CurrencyIndexAction $action)
     {
-        $currencyHistories = $action->handle($userId, $request);
+
+        // api/currencies/user?cs=htc,bts&dfrom=2022-08-28&dto=2022-09-04
+
+        $user = $request->user();
+
+        $currencyHistories = $action->handle($user, $request);
 
         return CurrenciesResource::collection($currencyHistories);
     }

@@ -1,5 +1,5 @@
 import httpClient from './index';
-import  {authHeader} from "./headers";
+import {authHeader} from "./headers";
 
 const endPoint = '/currencies';
 
@@ -9,7 +9,7 @@ const getLatest = () => {
     )
 };
 
-const postTrackedCurrencies = (currencies, userId) => {
+const postTrackedCurrencies = (currencies) => {
     return httpClient.post(
         endPoint + '/user',
         {
@@ -21,7 +21,15 @@ const postTrackedCurrencies = (currencies, userId) => {
     );
 }
 
+const getTrackedCurrencies = () => {
+  return httpClient.get(
+      endPoint + '/user',
+  );
+};
+
 export {
     getLatest,
     postTrackedCurrencies,
+    getTrackedCurrencies,
 }
+

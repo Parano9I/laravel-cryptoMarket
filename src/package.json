@@ -25,6 +25,7 @@
         "chartjs-adapter-date-fns": "^2.0.0",
         "datatables.net-dt": "^1.12.1",
         "date-fns": "^2.29.2",
-        "jquery": "^3.6.1"
+        "jquery": "^3.6.1",
+        "vue-chartjs": "^4.1.1"
     }
 }
