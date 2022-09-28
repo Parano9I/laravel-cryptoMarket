@@ -13,9 +13,9 @@ class CurrencyIndexAction
     public function handle($user, Request $request)
     {
         $params = [
-            'date' => new Carbon($request['date']),
-            'dfrom' => new Carbon($request['dfrom']),
-            'dto' => new Carbon($request['dto']),
+            'date' => $request['date'] ? new Carbon($request['date']) : null,
+            'dfrom' => $request['dfrom'] ? new Carbon($request['dfrom']) : null,
+            'dto' => $request['dto'] ? new Carbon($request['dto']) : null,
             'findCurrencies' => $request['cs']
                 ? explode(',', $request['cs'])
                 : [],
@@ -34,13 +34,13 @@ class CurrencyIndexAction
             })
             ->pluck('id', 'name');
 
-        $data = CurrencyHistory::whereIn('currency_id', $trackedCurrenciesId)
+        return $data = CurrencyHistory::whereIn('currency_id', $trackedCurrenciesId)
             ->when($params, function ($query) use ($params) {
                 if (empty($params['date'])) {
                     if (!empty($params['dfrom']) && !empty($params['dto'])) {
                         return $query->whereBetween(
                             'created_at',
-                            [$params['dfrom']->startOfDay(), $params['from']->endOfDay()]
+                            [$params['dfrom']->startOfDay(), $params['dto']->endOfDay()]
                         );
                     } else {
                         return $query->whereDate('created_at', Carbon::today()->startOfDay());

@@ -2,32 +2,58 @@
 
 namespace App\Http\Controllers\API;
 
+
 use App\Actions\API\CurrencyIndexAction;
 use App\Actions\API\CurrencyShowAction;
 use App\Actions\CurrencyUser\StoreAction;
-use App\Actions\PreferencesStoreAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Currency\CurrenciesResource;
 use App\Http\Resources\CurrencyResource;
-use App\Models\Currency;
-use App\Models\CurrencyHistory;
 use App\Models\User;
+use App\Repositories\CurrencyHistoryRepository;
+use App\Repositories\CurrencyRepository;
 use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 
 class CurrencyUserController extends Controller
 {
-    public function index(Request $request, CurrencyIndexAction $action)
+    protected $request;
+    protected $currencyHistoryRepo;
+    protected $currencyRepo;
+
+    public function __construct(
+        Request                   $request,
+        CurrencyHistoryRepository $currencyHistoryRepo,
+        CurrencyRepository        $currencyRepo
+    )
     {
+        $this->request = $request;
+        $this->currencyHistoryRepo = $currencyHistoryRepo;
+        $this->currencyRepo = $currencyRepo;
+    }
 
-        // api/currencies/user?cs=htc,bts&dfrom=2022-08-28&dto=2022-09-04
+    public function index()
+    {
+        // api/currencies/user?dfrom=2022-08-28&dto=2022-09-04
 
-        $user = $request->user();
+        $user = User::findOrFail($this->request->user()->id);
 
-        $currencyHistories = $action->handle($user, $request);
+        $findsCurrencies = [];
+
+        if ($this->request['cs']) {
+
+            $findsCurrencies = explode(',', $this->request['cs']);
+
+        }
+
+        $trackedCurrencies = $this->currencyRepo
+            ->getAllByUser($user, $findsCurrencies);
+
+        $currencyHistories = $this->currencyHistoryRepo
+            ->getTrackedAll($trackedCurrencies, $this->request['dfrom'], $this->request['dto']);
 
         return CurrenciesResource::collection($currencyHistories);
     }
+
 
     public function store(Request $request, StoreAction $action)
     {
@@ -54,15 +80,22 @@ class CurrencyUserController extends Controller
         ]);
     }
 
-    public function show(Request $request, $currency, $userId, CurrencyShowAction $action)
+    public function show($currency)
     {
         // /api/currencies/rep/user/1?dfrom=2022-08-28&dto=2022-09-04
 
-        $currencyHistories = $action->handle($request, $userId, $currency);
+        $user = User::findOrFail($this->request->user()->id);
+        $currency = $this->currencyRepo->getOneByUser($user, $currency);
+
+        $currencyHistories = $this->currencyHistoryRepo->getTrackedAll(
+            $currency,
+            $this->request['dfrom'],
+            $this->request['dto']
+        );
 
         if (!sizeof($currencyHistories)) return response()
             ->json(['error' => 'There are no records in this date range'], 500);
 
-        return new CurrencyResource([...$currencyHistories]);
+        return CurrenciesResource::collection($currencyHistories);
     }
 }

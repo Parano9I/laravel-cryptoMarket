@@ -1,7 +1,7 @@
 <template>
     <LineChartGenerator
         :chart-options="chartOptions"
-        :chart-data="chartData"
+        :chart-data="getChartData"
         :chart-id="chartId"
         :dataset-id-key="datasetIdKey"
         :plugins="plugins"
@@ -76,78 +76,70 @@ export default {
     },
     data() {
         return {
-            chartData: {
-                labels: [
-                    'January',
-                    'February',
-                    'March',
-                    'April',
-                    'May',
-                    'June',
-                    'July'
-                ],
-                datasets: [
-                    {
-                        label: 'btc',
-                        data: [4, 66, 22, 88, 4, 2]
-                    },
-                    {
-                        label: 'eth',
-                        data: [34, 66, 22, 7, 4, 9, 0]
-                    }
-                ],
-            },
+            chartData: this.getChartData,
             chartOptions: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
             }
         }
     },
-    mounted: {
-        rest: () => console.log('sdsss'),
+    watch: {
+        rawData: (newValue, oldValue) => {
+            console.log(newValue);
+        }
     },
     computed: {
-        // getChartData() {
-        //     return {
-        //         labels: [
-        //             'January',
-        //             'February',
-        //             'March',
-        //             'April',
-        //             'May',
-        //             'June',
-        //             'July'
-        //         ],
-        //         // datasets: this.getDatasets()
-        //         datasets: [
-        //             {
-        //                 label: 'btc',
-        //                 data: [4, 66, 22, 88, 4, 2]
-        //             },
-        //             {
-        //                 label: 'eth',
-        //                 data: [34, 66, 22, 7, 4, 9, 0]
-        //             }
-        //         ],
-        //     }
-        // },
+        getChartData() {
+            return {
+                labels: this.getLabelsData(),
+                datasets: this.getDatasets(),
+            }
+        },
     },
     methods: {
         getDatasets() {
-            console.log(this.currencies);
-            return this.currencies.map((currency) => {
-                console.log(this.getChartXData(currency.data));
+            return this.rawData.map((currency) => {
+                const color = this.getRandomColor();
+
                 return {
                     label: currency.name,
-                    data: this.getChartXData(currency.data)
+                    data: this.getChartYData(currency.data),
+                    backgroundColor: color,
+                    borderColor: color,
                 }
             });
         },
-        getChartXData(data) {
+        getLabelsData() {
+            const data = this.rawData[0].data;
+
+            const firstDate = new Date(data[0].date);
+            const lastDate = new Date(data.at(-1).date);
+
+            const isDayDateBetween = firstDate.getDay() === lastDate.getDay();
+
+            return data.map((item) => {
+                const date = new Date(item.date);
+
+                if (isDayDateBetween) {
+                    return date.getHours() + ':' + date.getMinutes();
+                } else{
+                    return date.getUTCDate() + '/' + date.getUTCMonth();
+                }
+            });
+        },
+        getChartYData(data) {
             return data.map((item) => {
                 return item.price;
             });
-        }
+        },
+        getRandomColor() {
+            const letters = '0123456789ABCDEF'.split('');
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        },
     }
 }
 

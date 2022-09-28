@@ -8,6 +8,7 @@ use App\Models\Currency;
 use App\Models\User;
 use App\Models\CurrencyHistory;
 use App\Notifications\EmailNotitfication;
+use App\Repositories\CurrencyHistoryRepository;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;
@@ -33,13 +34,14 @@ class SendEmailsCurrencyHistories extends Command
      *
      * @return int
      */
-    public function handle(Currency $currencyModel, DailyCurrenciesMailJob $job)
+    public function handle(
+        CurrencyHistoryRepository $currencyHistoryRepository,
+        DailyCurrenciesMailJob $job
+    )
     {
         $date = Carbon::today();
-        $currencyHistories = CurrencyHistory::whereDate('created_at', $date)
-            ->with('Currency')
-            ->get()
-            ->groupBy('currency_id')
+        $currencyHistories = $currencyHistoryRepository
+            ->getAllByDate($date)
             ->map(function ($value, $key) {
                 return [
                     'id' => $key,

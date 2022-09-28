@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 require __DIR__ . '/auth.php';
 
 Route::controller(CurrencyController::class)
-    ->middleware([])
+    ->middleware(['auth:sanctum'])
     ->prefix('/currencies')
     ->group(function () {
 
@@ -20,10 +20,11 @@ Route::controller(CurrencyController::class)
 Route::controller(CurrencyUserController::class)
     ->middleware(['auth:sanctum'])
     ->prefix('/currencies/user')
-    ->group(function (){
+    ->group(function () {
 
         Route::get('/', 'index')->name('tracked.currency.index');
-        Route::post('/','store')->name('tracked.currency.store');
+        Route::post('/', 'store')->name('tracked.currency.store');
         Route::get('/currency/{currency}', 'show')->name('tracked.currency.show');
 
     });
+
