@@ -35,7 +35,7 @@
 <script>
 import CryptoCard from "../components/CryptoCard.vue";
 
-import {getLatest, postTrackedCurrencies} from "../axios/currency";
+import {getLatest, getTrackedCurrencies, postTrackedCurrencies} from "../axios/currency";
 
 export default {
     components: {
@@ -52,7 +52,7 @@ export default {
         }
     },
     mounted() {
-        getLatest()
+        getTrackedCurrencies()
             .then((res) => {
                 if (res.status === 200) {
                     this.currencies = res.data.data

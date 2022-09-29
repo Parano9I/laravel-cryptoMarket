@@ -4,14 +4,15 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CurrencyIndexResource;
-use App\Models\CurrencyHistory;
+use App\Repositories\CurrencyRepository;
 use Illuminate\Http\Request;
 
 class CurrencyController extends Controller
 {
-    public function index(CurrencyHistory $currencyHistory)
+
+    public function index(CurrencyRepository $currencyRepository)
     {
-        $currencies = $currencyHistory->getLatestData();
+        return $currencies = $currencyRepository->getAll();
 
         return CurrencyIndexResource::collection($currencies);
     }

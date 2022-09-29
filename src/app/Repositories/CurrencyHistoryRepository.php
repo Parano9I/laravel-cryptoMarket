@@ -3,8 +3,6 @@
 namespace App\Repositories;
 
 use App\Models\CurrencyHistory;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 
 class CurrencyHistoryRepository
 {
@@ -15,43 +13,18 @@ class CurrencyHistoryRepository
         $this->model = $currencyHistory;
     }
 
-    public function getTrackedAll(
-        Collection  $trackedCurrencies,
-        string|null $dateFrom = '',
-        string|null $dateTo = '',
-        int         $historyInterval = 24
-    )
+    public function getAllWithCurrency($currencies)
     {
-
-        if (!$dateFrom && !$dateTo) {
-
-            $dateTo = Carbon::now();
-            $dateFrom = Carbon::parse('-' . $historyInterval . ' hours');
-
-        } else {
-
-            $dateFrom = (new Carbon($dateFrom))->startOfDay();
-            $dateTo = (new Carbon($dateTo))->endOfDay();
-
-        }
-
-        return $this->model->whereIn('currency_id', $trackedCurrencies)
-            ->whereBetween(
-                'created_at',
-                [$dateFrom, $dateTo]
-            )
-            ->with('Currency')
-            ->get()
-            ->groupBy('currency_id');
+        return $currencies->map(function ($currency) {
+            return [
+                'currency' => $currency,
+                'history' => $this->getAllByCurrency($currency),
+            ];
+        });
     }
 
-    public function getAllByDate(Carbon $date)
+    public function getAllByCurrency($currency)
     {
-        return $this->model
-            ->whereDate('created_at', $date)
-            ->with('Currency')
-            ->get()
-            ->groupBy('currency_id');
+        return $this->model->where('currency_id', $currency->id)->get();
     }
-
 }

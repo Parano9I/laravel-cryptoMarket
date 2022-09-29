@@ -3,7 +3,7 @@ import {authHeader} from "./headers";
 
 const endPoint = '/currencies';
 
-const getLatest = () => {
+const getCurrencies = () => {
     return httpClient.get(
         endPoint + '/'
     )
@@ -65,7 +65,7 @@ const getTrackedCurrencyHistories = (findCurrency = null, dates = []) => {
 };
 
 export {
-    getLatest,
+    getCurrencies,
     postTrackedCurrencies,
     getTrackedCurrencies,
     getTrackedCurrencyHistories,

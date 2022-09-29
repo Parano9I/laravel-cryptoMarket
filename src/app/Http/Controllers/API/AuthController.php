@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\AuthLoginRequest;
 use App\Http\Requests\AuthRegistrationRequest;
 use App\Models\User;
@@ -69,7 +70,7 @@ class AuthController extends Controller
     {
         auth()->user()->tokens()->delete();
         Auth::guard('web')->logout();
-        
+
         return response()->json([
             'status' => 'success',
             'message' => 'Successfully logged out',
@@ -83,25 +84,5 @@ class AuthController extends Controller
             'message' => 'Token is valid',
         ]);
     }
-
-//    public function refresh()
-//    {
-//        $user = auth()->user();
-//
-//        $user->tokens()->delete();
-//        $token = $user
-//            ->createToken($user->email)
-//            ->plainTextToken;
-//
-//
-//        return response()->json([
-//            'status' => 'success',
-//            'user' => $user,
-//            'authorization' => [
-//                'token' => $token,
-//                'type' => 'Bearer'
-//            ]
-//        ]);
-//    }
 
 }

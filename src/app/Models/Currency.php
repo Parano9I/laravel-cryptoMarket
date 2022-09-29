@@ -16,7 +16,7 @@ class Currency extends Model
         return $this->belongsToMany(User::class)->withTimestamps();
     }
 
-    public function currencyHistories()
+    public function histories()
     {
         return $this->hasMany(CurrencyHistory::class);
     }

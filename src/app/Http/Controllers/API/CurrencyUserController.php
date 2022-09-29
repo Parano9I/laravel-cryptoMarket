@@ -9,9 +9,11 @@ use App\Actions\CurrencyUser\StoreAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Currency\CurrenciesResource;
 use App\Http\Resources\CurrencyResource;
+use App\Http\Resources\CurrencyUserResource;
 use App\Models\User;
 use App\Repositories\CurrencyHistoryRepository;
 use App\Repositories\CurrencyRepository;
+use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
 
 class CurrencyUserController extends Controller
@@ -19,45 +21,36 @@ class CurrencyUserController extends Controller
     protected $request;
     protected $currencyHistoryRepo;
     protected $currencyRepo;
+    protected $userRepo;
 
     public function __construct(
-        Request                   $request,
         CurrencyHistoryRepository $currencyHistoryRepo,
-        CurrencyRepository        $currencyRepo
+        CurrencyRepository        $currencyRepo,
+        UserRepository            $userRepo
     )
     {
-        $this->request = $request;
         $this->currencyHistoryRepo = $currencyHistoryRepo;
         $this->currencyRepo = $currencyRepo;
+        $this->userRepo = $userRepo;
     }
 
-    public function index()
+    public function index(Request $request)
     {
         // api/currencies/user?dfrom=2022-08-28&dto=2022-09-04
 
-        $user = User::findOrFail($this->request->user()->id);
+        $userId = $request->user()->id;
+        $user = $this->userRepo->getById($userId);
+        $currencies = $this->currencyRepo->getTrackedAll($user);
 
-        $findsCurrencies = [];
-
-        if ($this->request['cs']) {
-
-            $findsCurrencies = explode(',', $this->request['cs']);
-
-        }
-
-        $trackedCurrencies = $this->currencyRepo
-            ->getAllByUser($user, $findsCurrencies);
-
-        $currencyHistories = $this->currencyHistoryRepo
-            ->getTrackedAll($trackedCurrencies, $this->request['dfrom'], $this->request['dto']);
-
-        return CurrenciesResource::collection($currencyHistories);
+        return CurrencyResource::collection($currencies);
     }
 
 
     public function store(Request $request, StoreAction $action)
     {
-        $user = auth()->user();
+        $userId = $request->user()->id;
+        $user = $this->userRepo->getById($userId);
+
         $trackedCurrencies = $request->currencies;
 
         if (empty($trackedCurrencies)) {
@@ -69,7 +62,10 @@ class CurrencyUserController extends Controller
             );
         }
 
-        $action->handle($trackedCurrencies, $user->id);
+        $currencies = Currency::whereIn('name', $currenciesName)->get();
+
+        $this->userRepo->attachCurrencies($userId, $currencies);
+        $this->userRepo->updateField($userId, 'first_login', 0);
 
         return response()->json([
             'status' => 'success',
@@ -80,22 +76,15 @@ class CurrencyUserController extends Controller
         ]);
     }
 
-    public function show($currency)
+    public function show(Request $request, $currency)
     {
         // /api/currencies/rep/user/1?dfrom=2022-08-28&dto=2022-09-04
 
-        $user = User::findOrFail($this->request->user()->id);
-        $currency = $this->currencyRepo->getOneByUser($user, $currency);
+        $userId = $request->user()->id;
+        $user = $this->userRepo->getById($userId);
 
-        $currencyHistories = $this->currencyHistoryRepo->getTrackedAll(
-            $currency,
-            $this->request['dfrom'],
-            $this->request['dto']
-        );
-
-        if (!sizeof($currencyHistories)) return response()
-            ->json(['error' => 'There are no records in this date range'], 500);
-
-        return CurrenciesResource::collection($currencyHistories);
+        $currency = $this->currencyRepo->getTrackedByName($user, $currency);
+        
+        return new CurrencyResource($currency);
     }
 }

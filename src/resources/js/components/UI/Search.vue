@@ -10,7 +10,7 @@
 
 <script>
 import {debounce} from "lodash";
-import {getTrackedCurrenciesHistory, getTrackedCurrencyHistories} from "../../axios/currency";
+import {getCurrencies, getTrackedCurrenciesHistory, getTrackedCurrencyHistories} from "../../axios/currency";
 
 export default {
     name: "Search",
@@ -34,7 +34,7 @@ export default {
     created() {
         this.debouncedHandler = debounce(event => {
             console.log(event);
-                getTrackedCurrencyHistories(event.target.value)
+                getCurrencies(event.target.value)
                     .then((res) => {
                         console.log(res);
                     })

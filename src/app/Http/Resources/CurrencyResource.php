@@ -14,12 +14,10 @@ class CurrencyResource extends JsonResource
      */
     public function toArray($request)
     {
-        $currency = $this[0][0]->currency;
-
         return [
-            'name' => $currency->name,
-            'image' => $currency->image_url,
-            'data' => CurrencyListResource::collection($this[0]),
+            'id' => $this->id,
+            'name' => $this->name,
+            'image' => $this->image_url,
         ];
     }
 }

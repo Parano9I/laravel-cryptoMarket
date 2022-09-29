@@ -15,44 +15,33 @@ class CurrencyRepository
         $this->model = $currency;
     }
 
-    public function getAllByUser(User $user, array $findsCurrencies)
+    public function getAll()
     {
-        return $user
-            ->currencies()
-            ->when($findsCurrencies, function ($query) use ($findsCurrencies) {
-
-                    if (!empty($findsCurrencies)) {
-
-                        return $query->whereIn('name', $findsCurrencies);
-
-                    } else {
-
-                        return $query;
-
-                    }
-
-            })
-            ->pluck('id', 'name');
+        return $this->model->all();
     }
 
-    public function getOneByUser(User $user, string $findCurrency){
-
-        return $user
-            ->currencies()
-            ->where('name', $findCurrency)
-            ->pluck('id', 'name');
+    public function getTrackedAll($user)
+    {
+        return $user->currencies()->get();
     }
 
-    public function getAllNames(){
-        return $this->model->pluck('name')->toArray();
+    public function getTrackedByName($user, string $name)
+    {
+        return $user->currencies()->where('name', $name)->first();
     }
 
-    public function getAllByNames(array $names){
+//    public function getAllWithHistory(CurrencyHistoryRepository $currencyHistoryRepository)
+//    {
+//        return $this->getAll()
+//            ->map(function ($currency) {
+//                return [
+//                    'currency' => $currency,
+//                    'history' =>
+//                        $currencyHistoryRepository
+//                            ->getAllByCurrency($currency),
+//                ];
+//            });
+//    }
 
-    }
-
-    public function getIdByName(string $name){
-        return $this->model->where('name', $name)->value('id');
-    }
 
 }

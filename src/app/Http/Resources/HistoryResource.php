@@ -2,10 +2,9 @@
 
 namespace App\Http\Resources;
 
-use App\Models\Currency;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class CurrencyListResource extends JsonResource
+class HistoryResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,7 +15,7 @@ class CurrencyListResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'price' => $this->amount,
+            'amount' => $this->amount,
             'date' => $this->created_at,
         ];
     }

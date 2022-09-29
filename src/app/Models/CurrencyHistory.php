@@ -16,11 +16,4 @@ class CurrencyHistory extends Model
     {
         return $this->belongsTo(Currency::class, 'currency_id', 'id');
     }
-
-    public function getLatestData()
-    {
-        return $this->where('created_at', $this->max('created_at'))
-            ->with('currency')
-            ->get();
-    }
 }
