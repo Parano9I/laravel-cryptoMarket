@@ -1,16 +1,28 @@
 <template>
-    <input
-        class="w-full rounded-lg"
-        type="text"
-        name="search"
-        @input="debouncedHandler"
-        id="search"
-    >
+    <div class="w-48">
+        <input
+            class="w-full rounded-lg"
+            type="text"
+            name="search"
+            @input="debouncedHandler"
+            id="search"
+        >
+        <ul class="">
+            <li v-for="detail of details">
+                <button
+                    class="w-full"
+                >
+                    {{detail}}
+                </button>
+            </li>
+        </ul>
+    </div>
+
 </template>
 
 <script>
 import {debounce} from "lodash";
-import {getCurrencies, getTrackedCurrenciesHistory, getTrackedCurrencyHistories} from "../../axios/currency";
+import {getCurrencies} from "../../axios/currency.js";
 
 export default {
     name: "Search",
@@ -27,17 +39,21 @@ export default {
     },
     data() {
         return {
-            details: [],
+            details: ['SOL', 'BTC', 'HTC'],
             value: ''
         }
     },
     created() {
         this.debouncedHandler = debounce(event => {
-            console.log(event);
-                getCurrencies(event.target.value)
-                    .then((res) => {
-                        console.log(res);
-                    })
+            const queryParams = {
+              cs: event.target.value,
+            };
+
+            getCurrencies(queryParams)
+                .then((res) => {
+                    console.log(res.data);
+                });
+
         }, 700);
     },
     beforeUnmount() {

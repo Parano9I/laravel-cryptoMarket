@@ -35,7 +35,7 @@
 <script>
 import CryptoCard from "../components/CryptoCard.vue";
 
-import {getLatest, getTrackedCurrencies, postTrackedCurrencies} from "../axios/currency";
+import {getTrackedCurrencies, postTrackedCurrencies} from "../axios/trackedCurrency.js";
 
 export default {
     components: {

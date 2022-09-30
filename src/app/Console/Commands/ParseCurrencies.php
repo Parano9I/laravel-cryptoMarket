@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Currency;
 use App\Models\CurrencyHistory;
 use App\Repositories\CurrencyRepository;
 use App\Services\CryptoAPIService;
@@ -30,11 +29,12 @@ class ParseCurrencies extends Command
      * @return int
      */
     public function handle(
-        CryptoAPIService   $cryptoAPIService,
+        CryptoAPIService $cryptoAPIService,
         CurrencyRepository $currencyRepository
-    )
-    {
-        $currenciesName = $currencyRepository->getAllNames();
+    ) {
+        $currencies = $currencyRepository->getAll();
+        $currenciesName = $currencies->pluck('name')->toArray();
+
         $currenciesData = $cryptoAPIService->getMultipleSymbolsFullData(
             $currenciesName,
             ['USD']
@@ -42,7 +42,8 @@ class ParseCurrencies extends Command
 
         foreach ($currenciesData as $currencyData) {
 
-            $currencyId = $currencyRepository->getIdByName($currencyData->name);
+            $currencyId = $currencies->where('name', $currencyData->name)
+                ->value('id');
 
             $currencyHistory = new CurrencyHistory();
             $currencyHistory->create([

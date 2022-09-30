@@ -14,9 +14,9 @@
                             @setCurrency="addToGraph"
                             @removeCurrency="removeFromGraph"
                             :key="currency.id"
-                            :image="currency.image"
+                            :image="currency.imageUrl"
                             :name="currency.name"
-                            :price="currency.data.at(-1).price"
+                            :price="currency.history.at(-1).amount"
                         />
                     </li>
                 </ul>
@@ -67,11 +67,7 @@
 
 <script>
 import cryptoCard from "../components/CryptoCard.vue";
-import {
-    getTrackedCurrencies,
-    getTrackedCurrenciesHistory,
-    getTrackedCurrencyHistories
-} from "../axios/currency.js";
+import {getTrackedCurrencies, getTrackedCurrenciesHistory,} from "../axios/trackedCurrency.js";
 import lineChart from "../components/LineChart.vue";
 import search from "../components/UI/Search.vue";
 
@@ -108,7 +104,13 @@ export default {
                     return oldValue.indexOf(item) === -1;
                 });
 
-                getTrackedCurrencyHistories(newCurrency[0], this.dates)
+                const queryParams = {
+                    cs: newCurrency,
+                    dfrom: this.dates.startDate,
+                    dto: this.dates.endDate
+                };
+
+                getTrackedCurrenciesHistory(queryParams)
                     .then((res) => {
                         if (res.status === 200) {
                             this.chartData = [
@@ -117,11 +119,12 @@ export default {
                             ];
                         }
                     });
+
             }
         },
     },
     mounted() {
-        getTrackedCurrencies()
+        getTrackedCurrenciesHistory()
             .then((res) => {
                 if (res.status === 200) {
                     this.currencies = res.data.data
@@ -141,7 +144,13 @@ export default {
             });
         },
         handleSubmit() {
-            getTrackedCurrenciesHistory(this.selected, this.dates)
+            const queryParams = {
+                cs: this.selected,
+                dfrom: this.dates.startDate,
+                dto: this.dates.endDate
+            };
+
+            getTrackedCurrenciesHistory(queryParams)
                 .then((res) => {
                     if (res.status === 200) {
                         this.chartData = null;

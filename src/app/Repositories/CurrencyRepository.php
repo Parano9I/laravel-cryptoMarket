@@ -24,7 +24,10 @@ class CurrencyRepository
 
     public function getTrackedAll($user)
     {
-        return $user->currencies()->get();
+        $trackedCurrenciesId = $user->currencies()->pluck('id');
+        $query = $this->model->query();
+
+        return $this->filters($query)->whereIn('id', $trackedCurrenciesId)->get();
     }
 
     private function filters($query)
@@ -38,10 +41,5 @@ class CurrencyRepository
             ->then(function ($query) {
                 return $query;
             });
-    }
-
-    public function getTrackedByName($user, string $name)
-    {
-        return $user->currencies()->where('name', $name)->first();
     }
 }

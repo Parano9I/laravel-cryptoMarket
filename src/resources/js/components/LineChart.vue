@@ -84,9 +84,6 @@ export default {
         }
     },
     watch: {
-        rawData: (newValue, oldValue) => {
-            console.log(newValue);
-        }
     },
     computed: {
         getChartData() {
@@ -103,14 +100,14 @@ export default {
 
                 return {
                     label: currency.name,
-                    data: this.getChartYData(currency.data),
+                    data: this.getChartYData(currency.history),
                     backgroundColor: color,
                     borderColor: color,
                 }
             });
         },
         getLabelsData() {
-            const data = this.rawData[0].data;
+            const data = this.rawData[0].history;
 
             const firstDate = new Date(data[0].date);
             const lastDate = new Date(data.at(-1).date);
@@ -129,7 +126,7 @@ export default {
         },
         getChartYData(data) {
             return data.map((item) => {
-                return item.price;
+                return item.amount;
             });
         },
         getRandomColor() {
