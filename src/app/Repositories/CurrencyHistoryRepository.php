@@ -2,7 +2,9 @@
 
 namespace App\Repositories;
 
+use App\Filters\History\HistoryDatesFilter;
 use App\Models\CurrencyHistory;
+use Illuminate\Pipeline\Pipeline;
 
 class CurrencyHistoryRepository
 {
@@ -25,6 +27,23 @@ class CurrencyHistoryRepository
 
     public function getAllByCurrency($currency)
     {
-        return $this->model->where('currency_id', $currency->id)->get();
+        $query = $this->model
+            ->query()
+            ->where('currency_id', $currency->id);
+
+        return $this->filter($query);
+    }
+
+    private function filter($query)
+    {
+        return app(Pipeline::class)
+            ->send($query)
+            ->through([
+                HistoryDatesFilter::class
+            ])
+            ->via('apply')
+            ->then(function ($query) {
+                return $query->get();
+            });
     }
 }

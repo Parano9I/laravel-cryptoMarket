@@ -2,9 +2,9 @@
 
 namespace App\Repositories;
 
+use App\Filters\Currency\CurrencyNameFilter;
 use App\Models\Currency;
-use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Pipeline\Pipeline;
 
 class CurrencyRepository
 {
@@ -17,7 +17,9 @@ class CurrencyRepository
 
     public function getAll()
     {
-        return $this->model->all();
+        $query = $this->model->query();
+
+        return $this->filters($query)->get();
     }
 
     public function getTrackedAll($user)
@@ -25,23 +27,21 @@ class CurrencyRepository
         return $user->currencies()->get();
     }
 
+    private function filters($query)
+    {
+        return app(Pipeline::class)
+            ->send($query)
+            ->through([
+                CurrencyNameFilter::class
+            ])
+            ->via('apply')
+            ->then(function ($query) {
+                return $query;
+            });
+    }
+
     public function getTrackedByName($user, string $name)
     {
         return $user->currencies()->where('name', $name)->first();
     }
-
-//    public function getAllWithHistory(CurrencyHistoryRepository $currencyHistoryRepository)
-//    {
-//        return $this->getAll()
-//            ->map(function ($currency) {
-//                return [
-//                    'currency' => $currency,
-//                    'history' =>
-//                        $currencyHistoryRepository
-//                            ->getAllByCurrency($currency),
-//                ];
-//            });
-//    }
-
-
 }
