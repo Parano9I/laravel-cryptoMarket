@@ -4,9 +4,14 @@
             <header class="p-4 shadow-md">
                 <h1 class="leading-8 font-bold">Dashboard</h1>
             </header>
-            <div class="container px-6">
+            <div class="px-6">
                 <div class="py-4">
-                    <search id="search" name="search"/>
+                    <search
+                        id="search"
+                        name="search"
+                        :tracked-currencies="getCurrenciesName()"
+                        @addTracked="addInTracked"
+                    />
                 </div>
                 <ul class="grid grid-cols-5 gap-4 auto-rows-fr py-4 overflow-y-auto">
                     <li v-for="currency in currencies">
@@ -158,6 +163,17 @@ export default {
                     }
                 });
         },
+        getCurrenciesName(){
+            return this.currencies.map(currency => currency.name);
+        },
+        addInTracked(name){
+            getTrackedCurrenciesHistory()
+                .then((res) => {
+                    if (res.status === 200) {
+                        this.currencies = res.data.data
+                    }
+                });
+        }
     },
     computed: {}
 }

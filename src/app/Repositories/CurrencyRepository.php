@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Filters\Currency\CurrencyNameFilter;
+use App\Filters\Currency\SearchCurrencyByNameFilter;
 use App\Models\Currency;
 use Illuminate\Pipeline\Pipeline;
 
@@ -35,7 +36,8 @@ class CurrencyRepository
         return app(Pipeline::class)
             ->send($query)
             ->through([
-                CurrencyNameFilter::class
+                CurrencyNameFilter::class,
+                SearchCurrencyByNameFilter::class
             ])
             ->via('apply')
             ->then(function ($query) {
