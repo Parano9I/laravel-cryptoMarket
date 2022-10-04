@@ -13,7 +13,6 @@ const getCurrencies = ($queryParams) => {
     )
 };
 
-
 export {
     getCurrencies,
 }

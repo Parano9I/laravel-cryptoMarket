@@ -13,7 +13,8 @@ class SearchCurrencyByNameFilter implements Pipe
 
             $currencySearchStr = request()->get('search');
 
-            $query->where('name', 'like', '%' . $currencySearchStr . '%');
+            $query->where('name', 'like', '%' . $currencySearchStr . '%')
+                ->take(2);
         }
 
         return $next($query);

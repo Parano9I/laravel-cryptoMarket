@@ -23,6 +23,10 @@ class CurrencyRepository
         return $this->filters($query)->get();
     }
 
+    public function getAllByNames($currenciesName){
+        return $this->model->whereIn('name', $currenciesName)->get();
+    }
+
     public function getTrackedAll($user)
     {
         $trackedCurrenciesId = $user->currencies()->pluck('id');

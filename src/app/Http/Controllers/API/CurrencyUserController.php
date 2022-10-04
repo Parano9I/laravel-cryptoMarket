@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\API;
 
 
-use App\Actions\API\CurrencyIndexAction;
-use App\Actions\API\CurrencyShowAction;
 use App\Actions\CurrencyUser\StoreAction;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Currency\CurrenciesResource;
 use App\Http\Resources\CurrencyResource;
 use App\Http\Resources\CurrencyUserResource;
-use App\Models\User;
 use App\Repositories\CurrencyHistoryRepository;
 use App\Repositories\CurrencyRepository;
 use App\Repositories\UserRepository;
@@ -25,10 +22,9 @@ class CurrencyUserController extends Controller
 
     public function __construct(
         CurrencyHistoryRepository $currencyHistoryRepo,
-        CurrencyRepository        $currencyRepo,
-        UserRepository            $userRepo
-    )
-    {
+        CurrencyRepository $currencyRepo,
+        UserRepository $userRepo
+    ) {
         $this->currencyHistoryRepo = $currencyHistoryRepo;
         $this->currencyRepo = $currencyRepo;
         $this->userRepo = $userRepo;
@@ -38,18 +34,15 @@ class CurrencyUserController extends Controller
     {
         // api/currencies/user?dfrom=2022-08-28&dto=2022-09-04
 
-        $userId = $request->user()->id;
-        $user = $this->userRepo->getById($userId);
-        $currencies = $this->currencyRepo->getTrackedAll($user);
+        $user = $request->user();
+        $currencies = $this->currencyRepo->getTrackedAll($user->id);
 
         return CurrencyResource::collection($currencies);
     }
 
-
-    public function store(Request $request, StoreAction $action)
+    public function store(Request $request)
     {
-        $userId = $request->user()->id;
-        $user = $this->userRepo->getById($userId);
+        $user = $request->user();
 
         $trackedCurrencies = $request->currencies;
 
@@ -62,10 +55,13 @@ class CurrencyUserController extends Controller
             );
         }
 
-        $currencies = Currency::whereIn('name', $currenciesName)->get();
+        $currencies = $this->currencyRepo->getAllByNames($trackedCurrencies);
 
-        $this->userRepo->attachCurrencies($userId, $currencies);
-        $this->userRepo->updateField($userId, 'first_login', 0);
+        $this->userRepo->attachCurrencies($user->id, $currencies);
+
+        if ($user->first_login) {
+            $this->userRepo->updateField($user->id, 'first_login', 0);
+        }
 
         return response()->json([
             'status' => 'success',
@@ -76,15 +72,16 @@ class CurrencyUserController extends Controller
         ]);
     }
 
-    public function show(Request $request, $currency)
-    {
-        // /api/currencies/rep/user/1?dfrom=2022-08-28&dto=2022-09-04
+    public function destroy(Request $request, $currency){
 
-        $userId = $request->user()->id;
-        $user = $this->userRepo->getById($userId);
+        $user = $request->user();
 
-        $currency = $this->currencyRepo->getTrackedByName($user, $currency);
-        
-        return new CurrencyResource($currency);
+        $this->userRepo->destroyCurrency($user->id, $currency);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Currencies removed from tracked',
+        ]);
     }
+
 }

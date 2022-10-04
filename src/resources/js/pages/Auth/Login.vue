@@ -1,10 +1,10 @@
 <template>
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-900">
-        <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white shadow-md sm:rounded-lg bg-gray-100">
+    <div class="min-h-screen bg-gray-900 flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
+        <div class="w-full sm:max-w-md mt-6 bg-gray-100 px-6 py-4 shadow-md sm:rounded-lg">
             <div class="flex items-baseline mb-4 font-mono font-extrabold">
                 <h1 class="text-3xl">Login/</h1>
                 <router-link
-                    class="text-2xl underline text-gray-600 hover:text-gray-900"
+                    class="text-2xl underline text-gray-800 hover:text-gray-900"
                     to="register">
                     Register
                 </router-link>

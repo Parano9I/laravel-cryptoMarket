@@ -31,12 +31,21 @@ const getTrackedCurrenciesHistory = ($paramsObj) => {
         {
             headers: authHeader(),
         }
-    )
-        ;
+    );
 };
+
+const removeTrackedCurrency = (currencyName) => {
+    return httpClient.delete(
+        endPoint + '/currency/' + currencyName,
+        {
+            headers: authHeader(),
+        }
+    );
+}
 
 export {
     getTrackedCurrencies,
     getTrackedCurrenciesHistory,
-    postTrackedCurrencies
+    postTrackedCurrencies,
+    removeTrackedCurrency
 }

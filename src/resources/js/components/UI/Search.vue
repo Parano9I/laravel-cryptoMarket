@@ -1,7 +1,7 @@
 <template>
     <div class="relative w-1/3"
-         @focusin="onFocus"
-         @focusout.once="detailsIsShow = false"
+         @focusin="detailsIsShow = true"
+         v-click-out-side="clickOutside"
     >
         <input
             class="w-full rounded-lg focus:border-transparent focus:border-solid focus:border-b focus:border-stone-500 focus:ring-0"
@@ -9,10 +9,10 @@
             name="search"
             @input="debouncedHandler"
             id="search"
-        >
+        />
         <template v-if="detailsIsShow && details.at(-1)">
             <ul
-                class="absolute bg-white w-full rounded-b-lg p-2"
+                class="absolute max-h-52 overflow-y-auto bg-white w-full rounded-b-lg p-2"
             >
                 <template v-for="detail of details">
                     <li class="border-solid border-b border-stone-500 last:border-b-0">
@@ -24,13 +24,14 @@
                             <button
                                 v-if="isTracked(detail.name)"
                                 class="text-red-700"
+                                @click="removeFromTracked(detail.name)"
                             >
                                 Remove from tracked
                             </button>
                             <button
                                 v-else
                                 class="text-green-700"
-                                @click.stop="addInTracked(detail.name)"
+                                @click="addInTracked(detail.name)"
                             >
                                 Add in tracked
                             </button>
@@ -40,12 +41,12 @@
             </ul>
         </template>
     </div>
-
 </template>
 
 <script>
 import {debounce} from "lodash";
 import {getCurrencies} from "../../axios/currency.js";
+import clickOutSide from "../../directives/clickOutSide.js";
 
 export default {
     name: "Search",
@@ -79,41 +80,37 @@ export default {
                 search: event.target.value,
             };
 
-            getCurrencies(queryParams)
-                .then((res) => {
-                    this.details = res.data;
-                });
-
+            if (searchStr) {
+                getCurrencies(queryParams)
+                    .then((res) => {
+                        this.details = res.data;
+                    });
+            } else {
+                this.details = [];
+            }
         }, 700);
     },
     beforeUnmount() {
         this.debouncedHandler.cancel();
     },
+    directives: {
+        clickOutSide,
+    },
     methods: {
-        onFocus() {
-            getCurrencies()
-                .then((res) => {
-                    this.details = res.data;
-                });
-
-            this.detailsIsShow = true;
-        },
         isTracked(currencyName) {
             return this.trackedCurrencies.includes(currencyName);
         },
-        addInTracked(name) {
-            postTrackedCurrencies([name])
-                .then(res => {
-                    if (res.status === 200) {
-                        this.$emit('addTracked', name);
-                    }
-                })
+        addInTracked(currencyName) {
+            this.$emit('addTracked', currencyName);
         },
-        removeFromTracked(name) {
-
+        removeFromTracked(currencyName){
+            this.$emit('removeTracked', currencyName);
+        },
+        clickOutside() {
+            this.detailsIsShow = false;
         }
     },
-    computed: {}
 }
+
 </script>
 
