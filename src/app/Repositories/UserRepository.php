@@ -24,8 +24,8 @@ class UserRepository
         $this->getById($userId)->currencies()->attach($currencies);
     }
 
-    public function updateField($userId, string $field, $value){
-        $this->getById($userId)->update($field, $value);
+    public function updateField($userId, array $updateCells){
+        $this->getById($userId)->update($updateCells);
     }
 
     public function getCurrencyIdByName($userId, $currencyName){

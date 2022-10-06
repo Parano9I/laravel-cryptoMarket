@@ -60,7 +60,7 @@ class CurrencyUserController extends Controller
         $this->userRepo->attachCurrencies($user->id, $currencies);
 
         if ($user->first_login) {
-            $this->userRepo->updateField($user->id, 'first_login', 0);
+            $this->userRepo->updateField($user->id, ['first_login' => 0]);
         }
 
         return response()->json([

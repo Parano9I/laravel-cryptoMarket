@@ -17,9 +17,9 @@
                             @setCurrency="setTrackedCurrency"
                             @removeCurrency="removeTrackedCurrency"
                             :key="currency.id"
-                            :image="currency.image"
+                            :image="currency.imageUrl"
                             :name="currency.name"
-                            :price="currency.amount"
+                            :price="currency.history.at(-1).amount"
                         />
                     </li>
                 </ul>
@@ -36,6 +36,7 @@
 import CryptoCard from "../components/CryptoCard.vue";
 
 import {getTrackedCurrencies, postTrackedCurrencies} from "../axios/trackedCurrency.js";
+import {getCurrencies, getCurrencyHistories} from "../axios/currency";
 
 export default {
     components: {
@@ -52,7 +53,7 @@ export default {
         }
     },
     mounted() {
-        getTrackedCurrencies()
+        getCurrencyHistories()
             .then((res) => {
                 if (res.status === 200) {
                     this.currencies = res.data.data
@@ -76,7 +77,7 @@ export default {
                                 })
                             );
 
-                            this.$router.push({name: 'home'});
+                            this.$router.push('/');
                         }
                     }
                 ).catch((err) => {

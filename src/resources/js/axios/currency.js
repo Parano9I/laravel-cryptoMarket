@@ -13,7 +13,14 @@ const getCurrencies = ($queryParams) => {
     )
 };
 
+const getCurrencyHistories = () => {
+    return httpClient.get(
+        endPoint + '/history/'
+    )
+}
+
 export {
     getCurrencies,
+    getCurrencyHistories
 }
 
