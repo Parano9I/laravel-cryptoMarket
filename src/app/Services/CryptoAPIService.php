@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Http;
 class CryptoAPIService
 {
     private string $url = 'https://min-api.cryptocompare.com/data/';
-
     private string $apiKey;
 
     private array $queryCategories = [

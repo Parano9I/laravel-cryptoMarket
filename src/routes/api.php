@@ -28,7 +28,6 @@ Route::controller(CurrencyHistoryController::class)->prefix('/currencies/history
         Route::get('/currency/{currency}', 'show')->name('tracked.currency.show');
     });
 
-
 Route::controller(CurrencyUserHistoryController::class)->middleware(['auth:sanctum'])
     ->prefix('/currencies/user/history')->group(function (
     ) {

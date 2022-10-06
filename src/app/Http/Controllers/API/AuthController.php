@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AuthLoginRequest;
 use App\Http\Requests\AuthRegistrationRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,7 @@ class AuthController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'user' => $user,
+                'user' => new UserResource($user),
                 'authorization' => [
                     'token' => $token,
                     'type' => 'Bearer',

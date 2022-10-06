@@ -24,8 +24,8 @@ class AuthRegistrationRequest extends FormRequest
     public function rules()
     {
         return [
-            'first_name' => 'required|string|max:155',
-            'last_name' => 'required|string|max:155',
+            'first_name' => 'required|string|max:70',
+            'last_name' => 'required|string|max:70',
             'email' => 'required|string|email|unique:users',
             'password' => 'required|string|min:6'
         ];
