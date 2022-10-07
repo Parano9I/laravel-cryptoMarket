@@ -8,7 +8,7 @@ import Logout from "../pages/Auth/Logout.vue";
 import auth from "./middlewares/auth.js";
 import middlewarePipeline from "./middlewares/middlewarePipeline.js";
 import firstLogin from "./middlewares/firstLogin.js";
-import guest from "./middlewares/guest";
+import guest from "./middlewares/guest.js";
 
 
 const routes = [
@@ -48,7 +48,7 @@ const routes = [
         name: 'preferences',
         component: Preferences,
         meta: {
-            middleware: [auth],
+            middleware: [auth, firstLogin],
         }
     },
 ];
