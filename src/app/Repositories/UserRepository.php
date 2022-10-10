@@ -28,6 +28,10 @@ class UserRepository
         $this->getById($userId)->update($updateCells);
     }
 
+    public function insert($userId, array $data) {
+        $this->getById($userId)->update($data);
+    }
+
     public function getCurrencyIdByName($userId, $currencyName){
         return $this->getById($userId)->currencies()->where('name', $currencyName)->first();
     }

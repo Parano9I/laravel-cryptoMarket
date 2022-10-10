@@ -5,8 +5,10 @@ use App\Http\Controllers\API\CurrencyHistoryController;
 use App\Http\Controllers\API\CurrencyUserController;
 use App\Http\Controllers\API\CurrencyUserHistoryController;
 use Illuminate\Support\Facades\Route;
+use App\Services\TelegramBotService;
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/telegram.php';
 
 Route::controller(CurrencyController::class)->prefix('/currencies')
     ->group(function () {
