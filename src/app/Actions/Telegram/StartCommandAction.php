@@ -13,6 +13,6 @@ class StartCommandAction implements Pipe
             return $next('Enter /login -u <email> -p <password> for will working with bot');
         }
 
-        return $next();
+        return $next($message);
     }
 }

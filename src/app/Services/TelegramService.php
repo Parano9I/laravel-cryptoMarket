@@ -5,13 +5,15 @@ namespace App\Services;
 use GuzzleHttp\Client as GuzzleHttp;
 use Illuminate\Pipeline\Pipeline;
 use TelegramBot\Api\Client as TelegramClient;
+use TelegramBot\Api\Types\Update;
 
 class TelegramService
 {
     private string $apiUrl = 'https://api.telegram.org/bot';
-    private string $token;
-    private GuzzleHttp $httpClient;
+    private string $commandPattern = '/^\/[a-z:A-Z]+/';
     private TelegramClient $telegram;
+    private GuzzleHttp $httpClient;
+    private string $token;
 
     public function __construct(GuzzleHttp $httpClient)
     {
@@ -36,38 +38,48 @@ class TelegramService
 
     public function routesPipeline(array $commandActions)
     {
+        $this->telegram->on(
+            function (Update $update) use ($commandActions) {
+                $message = $update->getMessage();
+                $isCommand = preg_match($this->commandPattern, $message->getText());
+                $answer = 'sds';
 
-        $this->telegram->command(
-            '/^\/[a-zA-Z]+/',
-            function ($message) use ($commandActions) {
-                $messageNow = $this->getTarnsformedMessage($message);
+                if ($isCommand) {
 
-                $result = app(Pipeline::class)
-                    ->send($message)
-                    ->through($commandActions)
-                    ->via('apply')
-                    ->then(function ($result) {
-                        return $result;
-                    });
+                    $transformedMessage = $this->getTransformedMessage($message);
+                    $answer = app(Pipeline::class)
+                        ->send($transformedMessage)
+                        ->through($commandActions)
+                        ->via('apply')
+                        ->then(function ($result) {
+                            return $result;
+                        });
 
-                $this->telegram->sendMessage($message->getChat()->getId(), $result);
+                    $this->telegram->sendMessage($transformedMessage['chat_id'], $answer);
 
-            });
+                } else {
+
+                    $this->telegram->sendMessage($message->getChat()->getId(), 'This command does not exist.');
+
+                }
+
+            }, fn() => true);
 
         $this->telegram->run();
     }
 
-    private function getTarnsformedMessage($initialMessage){
-        $messageText = $initialMessage->text();
-
+    private function getTransformedMessage($initialMessage)
+    {
+        $messageText = $initialMessage->getText();
         $matches = [];
-        preg_match('/^\/[a-zA-Z]+/', $messageText, $matches['command']);
-        preg_replace('/^\/[a-zA-Z]+./', $messageText, $matches['text']);
+
+        $matches['text'] = preg_replace($this->commandPattern, '', $messageText);
+        preg_match($this->commandPattern, $messageText, $matches['command']);
 
         return [
-            'command' => $matches['command'],
-            'text' => $matches['text'],
+            'command' => trim($matches['command'][0]),
+            'text' => trim($matches['text']),
+            'chat_id' => $initialMessage->getChat()->getId(),
         ];
     }
-
 }
