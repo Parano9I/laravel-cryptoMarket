@@ -2,6 +2,7 @@
 
 namespace App\Actions\Telegram;
 
+use App\Helpers\TableString;
 use App\Repositories\CurrencyRepository;
 use Closure;
 use Illuminate\Support\Facades\Auth;
@@ -17,17 +18,21 @@ class GetCurrencyCommandAction implements Pipe
 
     public function apply($message, Closure $next)
     {
-        if ($message['command'] === '/currency:get') {
+        if (!isset($message['answer']) && ($message['command'] === '/currency:get')) {
 
             $currencies = $this->currencyRepository->getAll();
-            $resultStr = 'name | price' . PHP_EOL;
+            $answer = 'sdsd';
 
-            foreach($currencies as $currency){
-                $resultStr = $resultStr . $currency->name . ' | 48374$' . PHP_EOL;
-            }
+            $tableHeader = ['name', 'price'];
+            $tableRows = [
+                ['BTC', '485,34$'],
+                ['BTChfhddsdsdsd', '485,2'],
+                ['BTC', '485,34$'],
+            ];
 
-            return $next($resultStr);
+            $answer = (new TableString($tableHeader, $tableRows))->render();
 
+            $message['answer'] = $answer;
         }
 
         return $next($message);

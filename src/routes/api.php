@@ -5,7 +5,6 @@ use App\Http\Controllers\API\CurrencyHistoryController;
 use App\Http\Controllers\API\CurrencyUserController;
 use App\Http\Controllers\API\CurrencyUserHistoryController;
 use Illuminate\Support\Facades\Route;
-use App\Services\TelegramBotService;
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/telegram.php';
@@ -37,5 +36,7 @@ Route::controller(CurrencyUserHistoryController::class)->middleware(['auth:sanct
         Route::post('/', 'store')->name('tracked.currency.store');
         Route::get('/currency/{currency}', 'show')->name('tracked.currency.show');
     });
+
+
 
 

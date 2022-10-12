@@ -17,9 +17,10 @@ class LoginCommandAction implements Pipe
 
     public function apply($message, Closure $next)
     {
-        if ($message['command'] === '/login') {
+        if (!isset($message['answer']) && ($message['command'] === '/login')) {
 
             $credentials = [];
+            $answer = '';
 
             preg_match('/-u.([A-Za-z0-9.^_]+@[A-Za-z0-9.^_]+)/', $message['text'], $credentials['email']);
             preg_match('/-p.([A-Za-z0-9.^_]+)/', $message['text'], $credentials['password']);
@@ -28,17 +29,15 @@ class LoginCommandAction implements Pipe
                 'email' => $credentials['email'][1],
                 'password' => $credentials['password'][1]
             ])) {
-
                 $user = Auth::user();
                 $this->userRepository->insert($user->id, ['telegram_id' => $message['chat_id']]);
 
-                return $next('Authorized');
-
+                $answer = 'Authorized';
             } else {
-
-                return $next('Unauthorized');
-
+                $answer = 'Unauthorized';
             }
+
+            $message['answer'] = $answer;
         }
 
         return $next($message);

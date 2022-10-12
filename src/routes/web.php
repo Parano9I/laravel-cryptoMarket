@@ -1,20 +1,23 @@
 <?php
 
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\PreferencesController;
+use App\Helpers\TableString;
 use Illuminate\Support\Facades\Route;
 
 
-Route::get('/{any}', function () {
-    return view('welcome');
-})->where('any', '.*');
+Route::get('/test', function () {
+    $tableHeader = ['name', 'price'];
+    $tableRows = [
+        ['BTC', '485,34$'],
+        ['BTC', '485,34$'],
+        ['BTC', '485,34$'],
+    ];
 
+    $table = new TableString($tableHeader, $tableRows);
 
-//Route::group(['middleware' => ['auth', 'first.login']], function () {
-//
-//    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-//    Route::get('/dashboard/{currency}', [DashboardController::class, 'show'])->name('dashboard.show');
-//
-//    Route::get('/preferences', [PreferencesController::class, 'index'])->name('preferences');
-//    Route::post('/preferences', [PreferencesController::class, 'store'])->name('post.preferences');
-//});
+    return $table->render();
+
+});
+
+//Route::get('/{any}', function () {
+//    return view('welcome');
+//})->where('any', '.*');

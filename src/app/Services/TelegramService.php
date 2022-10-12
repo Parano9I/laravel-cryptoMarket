@@ -47,7 +47,7 @@ class TelegramService
                 if ($isCommand) {
 
                     $transformedMessage = $this->getTransformedMessage($message);
-                    $answer = app(Pipeline::class)
+                    $result = app(Pipeline::class)
                         ->send($transformedMessage)
                         ->through($commandActions)
                         ->via('apply')
@@ -55,12 +55,17 @@ class TelegramService
                             return $result;
                         });
 
-                    $this->telegram->sendMessage($transformedMessage['chat_id'], $answer);
+                    if(isset($result['answer'])) {
+                        $result = $result['answer'];
+                    } else {
+                        $result = 'This command does not exist.';
+                    }
+
+                    $this->telegram->sendMessage($transformedMessage['chat_id'],'<pre>' . $result . '</pre>', 'html');
 
                 } else {
 
-                    $this->telegram->sendMessage($message->getChat()->getId(), 'This command does not exist.');
-
+                    $this->telegram->sendMessage($message->getChat()->getId(), 'This command does not exist.', 'html');
                 }
 
             }, fn() => true);
