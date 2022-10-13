@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Filters\History\HistoryDatesFilter;
 use App\Models\CurrencyHistory;
 use Illuminate\Pipeline\Pipeline;
+use Illuminate\Support\Collection;
 
 class CurrencyHistoryRepository
 {
@@ -15,7 +16,7 @@ class CurrencyHistoryRepository
         $this->model = $currencyHistory;
     }
 
-    public function getAllWithCurrency($currencies)
+    public function getAllWithCurrency($currencies) : Collection
     {
         return $currencies->map(function ($currency) {
             return [

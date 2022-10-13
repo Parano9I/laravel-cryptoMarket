@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Actions\Telegram\GetCurrencyCommandAction;
+use App\Actions\Telegram\GetTrackedCurrencyCommandAction;
 use App\Actions\Telegram\LoginCommandAction;
 use App\Actions\Telegram\StartCommandAction;
 use App\Services\TelegramService;
@@ -21,7 +22,8 @@ class TelegramController extends Controller
         $this->service->routesPipeline([
             StartCommandAction::class,
             LoginCommandAction::class,
-            GetCurrencyCommandAction::class
+            GetCurrencyCommandAction::class,
+            GetTrackedCurrencyCommandAction::class
         ]);
     }
 }

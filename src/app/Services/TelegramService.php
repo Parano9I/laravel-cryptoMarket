@@ -10,7 +10,7 @@ use TelegramBot\Api\Types\Update;
 class TelegramService
 {
     private string $apiUrl = 'https://api.telegram.org/bot';
-    private string $commandPattern = '/^\/[a-z:A-Z]+/';
+    private string $commandPattern = '/^\/[a-z-:A-Z]+/';
     private TelegramClient $telegram;
     private GuzzleHttp $httpClient;
     private string $token;
@@ -42,9 +42,13 @@ class TelegramService
             function (Update $update) use ($commandActions) {
                 $message = $update->getMessage();
                 $isCommand = preg_match($this->commandPattern, $message->getText());
-                $answer = 'sds';
+                $notCommandMessage = [
+                    'type' => 'text',
+                    'message' => 'This command does not exist.',
+                ];
 
                 if ($isCommand) {
+                    $answer = [];
 
                     $transformedMessage = $this->getTransformedMessage($message);
                     $result = app(Pipeline::class)
@@ -55,17 +59,18 @@ class TelegramService
                             return $result;
                         });
 
-                    if(isset($result['answer'])) {
-                        $result = $result['answer'];
+                    if (isset($result['answer'])) {
+                        $answer = $result['answer'];
                     } else {
-                        $result = 'This command does not exist.';
+                        $answer = $notCommandMessage;
                     }
 
-                    $this->telegram->sendMessage($transformedMessage['chat_id'],'<pre>' . $result . '</pre>', 'html');
+                    $this->sendMessage($message->getChat()->getId(), $answer);
 
                 } else {
 
-                    $this->telegram->sendMessage($message->getChat()->getId(), 'This command does not exist.', 'html');
+                    $this->sendMessage($message->getChat()->getId(), $notCommandMessage);
+
                 }
 
             }, fn() => true);
@@ -86,5 +91,12 @@ class TelegramService
             'text' => trim($matches['text']),
             'chat_id' => $initialMessage->getChat()->getId(),
         ];
+    }
+
+    public function sendMessage($chatId, array $answer)
+    {
+        $answer['type'] === 'html'
+            ? $this->telegram->sendMessage($chatId, '<pre>' . $answer['message'] . '</pre>', $answer['type'])
+            : $this->telegram->sendMessage($chatId, $answer['message']);
     }
 }

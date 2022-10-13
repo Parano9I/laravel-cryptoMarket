@@ -10,7 +10,11 @@ class StartCommandAction implements Pipe
     public function apply($message, Closure $next)
     {
         if (!isset($message['answer']) && ($message['command'] === '/start')) {
-            $answer = 'Enter /login -u <email> -p <password> for will working with bot';
+            $answer = [
+                'type' => 'text',
+                'message' => 'Enter /login -u <email> -p <password> for will working with bot',
+            ];
+
             $message['answer'] = $answer;
         }
 

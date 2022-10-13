@@ -37,7 +37,10 @@ class LoginCommandAction implements Pipe
                 $answer = 'Unauthorized';
             }
 
-            $message['answer'] = $answer;
+            $message['answer'] = [
+                'type' => 'text',
+                'message' => $answer
+            ];
         }
 
         return $next($message);

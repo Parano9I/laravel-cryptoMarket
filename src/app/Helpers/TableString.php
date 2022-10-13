@@ -30,17 +30,6 @@ class TableString
         $this->tableHeight = $this->getTableHeight();
     }
 
-//* Example:
-//*
-//*     +---------------+-----------------------+------------------+
-//*     | ISBN          | Title                 | Author           |
-//*     +---------------+-----------------------+------------------+
-//*     | 99921-58-10-7 | Divine Comedy         | Dante Alighieri  |
-//*     | 9971-5-0210-0 | A Tale of Two Cities  | Charles Dickens  |
-//*     | 960-425-059-0 | The Lord of the Rings | J. R. R. Tolkien |
-//*     +---------------+-----------------------+------------------+
-//*/
-
     private function getColumnsLength()
     {
         $columns = $this->tableData['header'];
@@ -112,14 +101,15 @@ class TableString
                 $ceil = '';
 
                 if ($rowIdx === 0) {
-                    $ceil .= $header[$columnIdx];
+    ``                $ceil .= $header[$columnIdx];
                 } else {
                     $ceil .= $rows[$rowIdx][$columnIdx];
                 }
 
+                $startPaddingSize = self::COLUMN_PADDING;
 
                 $columnWidthWithPadding = $this->getColumnWidthWithPadding($this->columnsSize[$columnIdx]);
-                $row .= $columnSeparator . ' ' . str_pad($ceil, $columnWidthWithPadding - 1, ' ');
+                $row .= $columnSeparator . ' ' . str_pad($ceil, $columnWidthWithPadding - $startPaddingSize, ' ');
 
                 if ($columnIdx === $this->columnsCount - 1) $row .= '|';
             }
