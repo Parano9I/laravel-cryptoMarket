@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Telegram\GetCurrencyCommandAction;
 use App\Actions\Telegram\GetTrackedCurrencyCommandAction;
+use App\Actions\Telegram\GetTrackedCurrencyWithHistoryCommandAction;
 use App\Actions\Telegram\LoginCommandAction;
 use App\Actions\Telegram\StartCommandAction;
 use App\Services\TelegramService;
@@ -23,7 +24,8 @@ class TelegramController extends Controller
             StartCommandAction::class,
             LoginCommandAction::class,
             GetCurrencyCommandAction::class,
-            GetTrackedCurrencyCommandAction::class
+            GetTrackedCurrencyCommandAction::class,
+//            GetTrackedCurrencyWithHistoryCommandAction::class
         ]);
     }
 }

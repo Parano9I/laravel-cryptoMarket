@@ -87,39 +87,26 @@ class TableString
         return $this->rowsCount + self::HEADERS_COUNT;
     }
 
-    public function render()
+    public function render(): string
     {
         $result = '';
-        $columnSeparator = '|';
 
         $rows = $this->tableData['rows'];
         $header = $this->tableData['header'];
 
         for ($rowIdx = 0; $rowIdx < $this->rowsCount; $rowIdx++) {
-            $row = $this->renderRowSeparator() . PHP_EOL;
-            for ($columnIdx = 0; $columnIdx < $this->columnsCount; $columnIdx++) {
-                $ceil = '';
+            $result .= $this->renderRowSeparator();
 
-                if ($rowIdx === 0) {
-    ``                $ceil .= $header[$columnIdx];
-                } else {
-                    $ceil .= $rows[$rowIdx][$columnIdx];
-                }
-
-                $startPaddingSize = self::COLUMN_PADDING;
-
-                $columnWidthWithPadding = $this->getColumnWidthWithPadding($this->columnsSize[$columnIdx]);
-                $row .= $columnSeparator . ' ' . str_pad($ceil, $columnWidthWithPadding - $startPaddingSize, ' ');
-
-                if ($columnIdx === $this->columnsCount - 1) $row .= '|';
+            if($rowIdx === 0) {
+                $result .= $this->renderRowTable($rowIdx, $header);
+                $result .= $this->renderRowSeparator();
             }
-            $result .= $row . PHP_EOL;
+
+            $result .= $this->renderRowTable($rowIdx, $rows);
         }
 
         return $result . $this->renderRowSeparator();
     }
-
-    //+---------------+-----------------------+------------------+
 
     private function renderRowSeparator()
     {
@@ -135,6 +122,42 @@ class TableString
             $result .= $columnPart;
         }
 
-        return $result . $crossChar;
+        return $result . $crossChar  . PHP_EOL;
+    }
+
+    public function renderRowTable(int $rowIdx, array $rowItems): string
+    {
+        $isTwoDArray = is_array($rowItems[0]);
+        $rowResultStr = '';
+
+        for ($columnIdx = 0; $columnIdx < $this->columnsCount; $columnIdx++) {
+            $ceilItem = null;
+
+            if ($isTwoDArray) {
+                $ceilItem .= $rowItems[$rowIdx][$columnIdx];
+            } else {
+                $ceilItem .= $rowItems[$columnIdx];
+            }
+
+            $rowResultStr .= $this->renderCeilTable($ceilItem, $columnIdx);
+        }
+
+        return $rowResultStr . PHP_EOL;
+    }
+
+    public function renderCeilTable(string|int|bool $item, int $columnIdx): string
+    {
+        $startPaddingSize = self::COLUMN_PADDING;
+        $columnSeparator = '|';
+
+        $columnWidthWithPadding = $this->getColumnWidthWithPadding($this->columnsSize[$columnIdx]);
+
+        $result = $columnSeparator . ' ' . str_pad($item, $columnWidthWithPadding - $startPaddingSize, ' ');
+
+        if ($columnIdx === $this->columnsCount - 1) {
+            $result .= '|';
+        }
+
+        return $result;
     }
 }
